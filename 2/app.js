@@ -1,13 +1,15 @@
 'use strict';
 
 var findFunction = function (object, functionName, functionArg) {
-    for (var i = 0; i < object.superClassList.length; ++i) {
-        if(object.superClassList[i].hasOwnProperty(functionName)) {
-            return object.superClassList[i][functionName](functionArg);
-        }
-        var found = findFunction(object.superClassList[i], functionName, functionArg);
-        if(found) return found;
-    }    
+    if(object.superClassList !== null) {
+        for (var i = 0; i < object.superClassList.length; ++i) {
+            if(object.superClassList[i].hasOwnProperty(functionName)) {
+                return object.superClassList[i][functionName].apply(this, functionArg);
+            }
+            var found = findFunction(object.superClassList[i], functionName, functionArg);
+            if(found) return found;
+        }    
+    }
 }
 
 var createClass = function(className, superClassList) {
@@ -19,26 +21,26 @@ var createClass = function(className, superClassList) {
             className : className,
             superClassList : superClassList,
             new : function () {
-                return Object.create(this, {
-                    call: {
-                        value: function(functionName, functionArg) {
-                            if (this.hasOwnProperty(functionName)) {
-                                return this[functionName](functionArg);
-                            } else {
-                                return findFunction(this, functionName, functionArg);
-                            }   
-                        }
-                    }
-                })
+                var newObject = {};
+                newObject.classReference = this;
+                newObject.call = function(functionName, functionArg) {
+                    if (this.hasOwnProperty(functionName)) {
+                        return this[functionName].apply(this, functionArg);
+                    } else {
+                        return findFunction(this.classReference, functionName, functionArg);
+                    }   
+                };
+                
+                return newObject;
             }
-        };
+        }
                                 
     } else {
         alert("Wrong input");   
     }
      
 };
-
+ 
 
 
 var class0 = createClass("Class0", null); 

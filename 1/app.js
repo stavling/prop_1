@@ -3,13 +3,15 @@
 var myObject = {};
 
 var findFunction = function(object, functionName, functionArg) {
-    for(var i = 0; i < object.prototypeList.length; ++i) {
-        if(object.prototypeList[i].hasOwnProperty(functionName)) {
-            return object.prototypeList[i][functionName].apply(this, functionArg);
-        }
-        var found = findFunction(object.prototypeList[i], functionName, functionArg);
-        if(found) return found;
-    } 
+    if(object.prototypeList !== null) {
+        for(var i = 0; i < object.prototypeList.length; ++i) {
+            if(object.prototypeList[i].hasOwnProperty(functionName)) {
+                return object.prototypeList[i][functionName].apply(this, functionArg);
+            }
+            var found = findFunction(object.prototypeList[i], functionName, functionArg);
+            if(found) return found;
+        } 
+    }
 }
  
 myObject.call = function (functionName, functionArg) {
@@ -21,7 +23,7 @@ myObject.call = function (functionName, functionArg) {
 }; 
 
 myObject.create = function (prototypeList) {
-    if(prototypeList.constructor === Array || prototypeList === null) { 
+    if(prototypeList === null || prototypeList.constructor === Array) { 
     
             return {
                 prototypeList : prototypeList, 
